@@ -1,12 +1,15 @@
 #include <Wire.h>  // Include Wire if you're using I2C
 #include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
 #include <DHT.h>
+#include <Adafruit_MLX90614.h>
 
 #define PIN_RESET 255  //
 #define DC_JUMPER 0  // I2C Addres: 0 - 0x3C, 1 - 0x3D - OLED Display
 
 #define DHTPIN D4
 #define DHTTYPE DHT22
+
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -64,6 +67,8 @@ void setup()
 {
   Wire.begin();
 
+  mlx.begin();
+
   Serial.begin(9600);
 
   Serial.println("\nI2C Scanner");
@@ -88,7 +93,9 @@ void loop()
 {
   getTemp();
   
-  scanI2CDevices();
+  // scanI2CDevices();
+
+  getTempMLX();
 
   // Check if we need to update seconds, minutes, hours:
   if (lastDraw + CLOCK_SPEED < millis())
@@ -261,5 +268,23 @@ void scanI2CDevices() {
   else
     Serial.println("done\n");
  
-  delay(5000);           // wait 5 seconds for next scan
+  delay(3000);           // wait 5 seconds for next scan
+}
+
+void getTempMLX() {
+  {
+  Serial.print("MLX Ambient = "); 
+  Serial.print(mlx.readAmbientTempC()); 
+  Serial.print("*C\tMLX Object = "); 
+  Serial.print(mlx.readObjectTempC()); 
+  Serial.println("*C");
+  Serial.print("MLX Ambient = "); 
+  Serial.print(mlx.readAmbientTempF()); 
+  Serial.print("*F\tMLX Object = "); 
+  Serial.print(mlx.readObjectTempF()); 
+  Serial.println("*F");
+ 
+  Serial.println();
+  delay(1000);
+}
 }
